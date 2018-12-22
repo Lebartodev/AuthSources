@@ -7,8 +7,8 @@ resolvers += Resolver.url("SparkPackages", url("https://dl.bintray.com/spark-pac
 libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core" % "2.3.1",
   "org.apache.spark" %% "spark-sql" % "2.3.1",
-  "org.apache.spark" %% "spark-graphx" % "2.3.1"
-  
-
-
+  "org.apache.spark" %% "spark-graphx" % "2.3.1",
+  "log4j" % "log4j" % "1.2.17",
+  "org.apache.spark" %% "spark-hive" % "2.3.1",
+  "org.neo4j.driver" % "neo4j-java-driver" % "1.7.2"
 )
