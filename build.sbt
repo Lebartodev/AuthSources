@@ -10,5 +10,6 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-graphx" % "2.3.1",
   "log4j" % "log4j" % "1.2.17",
   "org.apache.spark" %% "spark-hive" % "2.3.1",
-  "org.neo4j.driver" % "neo4j-java-driver" % "1.7.2"
+  "org.neo4j" % "neo4j" % "3.3.1",
+  "org.neo4j.driver" % "neo4j-java-driver" % "1.4.4"
 )
