@@ -17,7 +17,7 @@ object Main {
     val graph = GraphUtils.load(session = sparkSession)
     logger.info("Graph loaded")
 
-    val res = PageRankUnCache.run(graph, iter, 0.15)
+    val res = TrustRank.run(graph, iter )
     res.vertices.sortBy(_._2, ascending = false).take(10).foreach(println)
 
     sparkSession.stop()
