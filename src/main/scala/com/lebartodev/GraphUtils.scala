@@ -43,6 +43,21 @@ object GraphUtils {
     Graph(v, e)
   }
 
+  def loadGoogle(session: SparkSession): Graph[String, String] = {
+    if (Config.UPLOAD_TO_NEO4J) {
+      neo4JDriver = GraphDatabase.driver("bolt://localhost:7687")
+    }
+    val fileName = getFileName(Config.FILE_NAME_GOOGLE)
+    val lines = session.sparkContext.textFile(fileName).cache
+
+    val edges: RDD[Edge[String]] =
+      lines.map { line =>
+        val fields = line.split("\t")
+        Edge(fields(0).toLong, fields(1).toLong, "link")
+      }
+    Graph.fromEdges(edges, "defaultProperty")
+  }
+
   private def getFileName(s: String): String = {
     var res: String = null
     if (Config.LOCAL) {

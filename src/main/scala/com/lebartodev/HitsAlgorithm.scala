@@ -3,7 +3,7 @@ package com.lebartodev
 import com.lebartodev.Main._
 import org.apache.spark.graphx.{Graph, VertexId, VertexRDD}
 
-class HitsAlgorithm extends Serializable {
+object HitsAlgorithm extends Serializable {
 
   case class VertexAttr(name: String, srcId: Long, authScore: Double, hubScore: Double)
 
