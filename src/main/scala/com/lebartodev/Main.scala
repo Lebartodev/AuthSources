@@ -19,7 +19,7 @@ object Main {
     val graph = GraphUtils.loadGoogle(session = sparkSession)
     logger.info("Graph loaded")
 
-    saveResult(graph, sparkSession)
+    timeHITS(graph, sparkSession)
     sparkSession.stop()
 
   }
@@ -29,16 +29,17 @@ object Main {
     val result = graph.vertices.join(graph.inDegrees)
       .groupBy(a => a._2._2)
       .map(a => {
-        val d = a._2.size.toDouble / count
-        (a._1, d)
-      }).sortBy(_._1, ascending = true) //.saveAsTextFile("result")
+        val d = Math.log10(a._2.size)
+        (Math.log10(a._1), d)
+      })
+      .sortBy(_._1, ascending = true) //.saveAsTextFile("result")
 
     val df = sparkSession.sqlContext.createDataFrame(result)
     df.write
       .format("com.crealytics.spark.excel")
       .option("useHeader", "false")
       .mode("append") // Optional, default: overwrite.
-      .save("InDegreeGoogle.xlsx")
+      .save("InDegreeLogGoogle.xlsx")
   }
 
   def savePageRankGraph(graph: Graph[String, String], sparkSession: SparkSession): Unit = {
@@ -56,6 +57,20 @@ object Main {
       .option("useHeader", "false")
       .mode("append") // Optional, default: overwrite.
       .save("PRGoogle.xlsx")
+  }
+
+  def timePageRankGraph(graph: Graph[String, String], sparkSession: SparkSession): Unit = {
+    var start_ms = System.currentTimeMillis()
+    val res = PageRankUnCache.run(graph, 10, 0.15)
+    res.cache()
+    println("Time : " + (System.currentTimeMillis() - start_ms))
+  }
+
+  def timeHITS(graph: Graph[String, String], sparkSession: SparkSession): Unit = {
+    var start_ms = System.currentTimeMillis()
+    val res = HitsAlgorithm.runHits(graph, 100)
+    res.cache()
+    println("Time : " + (System.currentTimeMillis() - start_ms))
   }
 
   def saveTrustRankGraph(graph: Graph[String, String], sparkSession: SparkSession): Unit = {
@@ -79,7 +94,7 @@ object Main {
     val count = graph.vertices.count()
     val res = HitsAlgorithm.runHits(graph, 10)
     val result = res.vertices
-      .groupBy(a => a._2._2)
+      .groupBy(a => a._2._2 - (a._2._2 % 0.0000001))
       .map(a => {
         val d = a._2.size.toDouble / count
         (a._1, d)
@@ -121,6 +136,8 @@ object Main {
     val warehouseLocation = new File("spark-warehouse").getAbsolutePath
     val sparkBuilder = SparkSession.builder
       .appName("GraphX App")
+      .config("spark.executor.memory", "4g")
+      .config("spark.driver.memory", "4g")
       .config("spark.sql.warehouse.dir", warehouseLocation)
       .enableHiveSupport()
 
